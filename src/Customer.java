@@ -1,5 +1,6 @@
 
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 public class Customer {
@@ -18,28 +19,45 @@ public class Customer {
     return id;
   }
 
+  public Set<Appliance> getAppliances() {
+    return appliances;
+  }
+
   public String getTaxCode() {
     return taxCode;
   }
 
-  public Appliance getAppliance(String applianceId) throws ApplianceNotFoundException {
+  public Optional<Appliance> getAppliance(String applianceId) {
     for (Appliance appliance : appliances) {
       if (appliance.getId().equals(applianceId)) {
-        return appliance;
+        return Optional.of(appliance);
       }
     }
-    throw new ApplianceNotFoundException(this.id, applianceId);
+    return Optional.empty();
   }
 
-  public void setAppliance(Appliance appliance) throws ApplianceNotSavedException {
-    try {
-      Appliance oldAppliance = getAppliance(appliance.getId());
-      oldAppliance.setStatus(appliance.isStatus());
-    } catch (ApplianceNotFoundException e) {
-      if (!appliances.add(appliance)) {
-        throw new ApplianceNotSavedException();
-      }
+  public Appliance setAppliance(Appliance appliance) {
+
+    Optional<Appliance> foundAppliance = getAppliance(appliance.getId());
+
+    if (foundAppliance.isPresent()) {
+      foundAppliance.get().setStatus(appliance.isStatus());
+      return foundAppliance.get();
+    } else {
+      appliances.add(appliance);
+      return appliance;
     }
   }
 
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    } else {
+      return (obj instanceof Customer) &&
+          ((Customer) obj).getId().equalsIgnoreCase(this.id) &&
+          ((Customer) obj).getTaxCode().equalsIgnoreCase(this.taxCode);
+    }
+  }
 }

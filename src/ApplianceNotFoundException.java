@@ -5,4 +5,8 @@ public class ApplianceNotFoundException extends Exception {
         applianceId));
   }
 
+  public ApplianceNotFoundException(String applianceId) {
+    super(String.format("Appliance %s not found", applianceId));
+  }
+
 }
